@@ -21,7 +21,7 @@ class ImageProcessMTCNN {
         MTCNNDetector detector;
         std::string path;
     public:
-        ImageProcessMTCNN(std::string path);
+        ImageProcessMTCNN(std::string path, std::string path1);
     
         // MTCNN inferencing
         cv::Mat filterMTCNN(cv::Mat src);

@@ -28,7 +28,7 @@ using namespace std;
         
         switch (self->type) {
             case ImageProcessTypeMTCNN:
-                self->impMTCNN = new ImageProcessMTCNN([self getMTCNNPath]);
+                self->impMTCNN = new ImageProcessMTCNN([self getMTCNNPath], [self getDocumentsPath]);
                 break;
             case ImageProcessTypeDNN:
                 self->impDNN = new ImageProcessDNN([self getDNNPath]);
@@ -133,6 +133,12 @@ using namespace std;
     }
     
     return "";
+}
+
+
+- (std::string)getDocumentsPath {
+    NSString *path = NSTemporaryDirectory();
+    return [path cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
 
