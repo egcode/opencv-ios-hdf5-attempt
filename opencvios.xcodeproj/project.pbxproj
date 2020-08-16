@@ -404,6 +404,7 @@
 		6A2108CF24E8CF2200145321 /* H5HFtest.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A21078224E8CF2100145321 /* H5HFtest.c */; };
 		6A2108D024E8CF2200145321 /* H5Tcompound.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A21078424E8CF2100145321 /* H5Tcompound.c */; };
 		6A2108D124E8CF2200145321 /* H5HFdbg.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A21078524E8CF2100145321 /* H5HFdbg.c */; };
+		6AAC0C4524E9963900AE887F /* dataset_targarien.h5 in Resources */ = {isa = PBXBuildFile; fileRef = 6AAC0C4424E9963900AE887F /* dataset_targarien.h5 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1020,6 +1021,7 @@
 		6A21078324E8CF2100145321 /* H5FSmodule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = H5FSmodule.h; sourceTree = "<group>"; };
 		6A21078424E8CF2100145321 /* H5Tcompound.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = H5Tcompound.c; sourceTree = "<group>"; };
 		6A21078524E8CF2100145321 /* H5HFdbg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = H5HFdbg.c; sourceTree = "<group>"; };
+		6AAC0C4424E9963900AE887F /* dataset_targarien.h5 */ = {isa = PBXFileReference; lastKnownFileType = file; path = dataset_targarien.h5; sourceTree = "<group>"; };
 		CBDA69CBBC516DBDA4293FF9 /* Pods-opencvios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-opencvios.release.xcconfig"; path = "Pods/Target Support Files/Pods-opencvios/Pods-opencvios.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1092,6 +1094,7 @@
 			isa = PBXGroup;
 			children = (
 				449932A72277AC9E00F28D03 /* det1.caffemodel */,
+				6AAC0C4424E9963900AE887F /* dataset_targarien.h5 */,
 				449932A82277AC9E00F28D03 /* det1.prototxt */,
 				449932A92277AC9E00F28D03 /* det3.caffemodel */,
 				449932AA2277AC9E00F28D03 /* det3.prototxt */,
@@ -1855,6 +1858,7 @@
 				449932AF2277AC9E00F28D03 /* det3.caffemodel in Resources */,
 				6A2107F024E8CF2100145321 /* H5overflow.txt in Resources */,
 				6A2107E424E8CF2100145321 /* H5vers.txt in Resources */,
+				6AAC0C4524E9963900AE887F /* dataset_targarien.h5 in Resources */,
 				449932AD2277AC9E00F28D03 /* det1.caffemodel in Resources */,
 				44D106F02275682E00F72547 /* Main.storyboard in Resources */,
 				44F57C82227CB2530083F896 /* deploy.prototxt in Resources */,

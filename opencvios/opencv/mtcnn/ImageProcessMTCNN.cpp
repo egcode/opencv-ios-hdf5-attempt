@@ -7,7 +7,24 @@
 //
 
 #include "ImageProcessMTCNN.hpp"
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////  HDF5 START  ////////////////////////////////////////////////////////////////////
+#include <string>
+#include <vector>
 #include "H5Cpp.h"
+using namespace H5;
+// Operator function
+extern "C" herr_t file_info(hid_t loc_id, const char *name, const H5L_info2_t *linfo,
+    void *opdata);
+std::vector<std::string> groupNames;
+
+using std::cout;
+using std::endl;
+//////////////////////////////////////////////////////////////////////////////////////  HDF5 END  ////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 ImageProcessMTCNN::ImageProcessMTCNN(std::string path, std::string path1)
 {
@@ -31,56 +48,107 @@ ImageProcessMTCNN::ImageProcessMTCNN(std::string path, std::string path1)
     
     
     
-    
-    #define MAX_NAME_LENGTH 32
-    const std::string FileName(path1 +"SimpleCompound.h5");
-    const std::string DatasetName("PersonalInformation");
-    const std::string member_age("Age");
-    const std::string member_sex("Sex");
-    const std::string member_name("Name");
-    const std::string member_height("Height");
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////  HDF5 START  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    typedef struct {
-        int age;
-        char sex;
-        char name[MAX_NAME_LENGTH];
-        float height;
-    } PersonalInformation;
+    const H5std_string FILE_NAME( path + "dataset_targarien.h5" );
 
-    // Data to write
-    PersonalInformation person_list[] = {
-        { 18, 'M', "Mary",  152.0   },
-        { 32, 'F', "Tom",   178.6   },
-        { 29, 'M', "Tarou", 166.6   }
-    };
-    // the length of the data
-    int length = sizeof(person_list) / sizeof(PersonalInformation);
-    // the array of each length of multidimentional data.
-    hsize_t dim[1];
-    dim[0] = sizeof(person_list) / sizeof(PersonalInformation);
+    // Try block to detect exceptions raised by any of the calls inside it
+    try
+    {
+        /*
+         * Turn off the auto-printing when failure occurs so that we can
+         * handle the errors appropriately
+         */
+        Exception::dontPrint();
 
-    // the length of dim
-    int rank = sizeof(dim) / sizeof(hsize_t);
+        /*
+         * Create the named file, truncating the existing one if any,
+         * using default create and access property lists.
+         */
+        H5File *file = new H5File( FILE_NAME, H5F_ACC_RDONLY );
 
-    // defining the datatype to pass HDF55
-    H5::CompType mtype(sizeof(PersonalInformation));
-    mtype.insertMember(member_age, HOFFSET(PersonalInformation, age), H5::PredType::NATIVE_INT);
-    mtype.insertMember(member_sex, HOFFSET(PersonalInformation, sex), H5::PredType::C_S1);
-    mtype.insertMember(member_name, HOFFSET(PersonalInformation, name), H5::StrType(H5::PredType::C_S1, MAX_NAME_LENGTH));
-    mtype.insertMember(member_height, HOFFSET(PersonalInformation, height), H5::PredType::NATIVE_FLOAT);
-    
-    // preparation of a dataset and a file.
-    H5::DataSpace space(rank, dim);
-    H5::H5File *file = new H5::H5File(FileName, H5F_ACC_TRUNC);
-    H5::DataSet *dataset = new H5::DataSet(file->createDataSet(DatasetName, mtype, space));
-    // Write
-    dataset->write(person_list, mtype);
-    
-    delete dataset;
-    delete file;
 
-    
-    
+        /*
+         * Use iterator to see the names of the objects in the file
+         * root directory.
+         */
+        cout << endl << "Iterating over elements in the file" << endl;
+        herr_t idx = H5Literate2(file->getId(), H5_INDEX_NAME, H5_ITER_INC, NULL, file_info, NULL);
+        cout << endl;
+
+
+        cout << "Extracted group Names: \n";
+        for (int i=0; i<groupNames.size();i++ )
+        {
+            cout << "\n\n  extracted name: " << groupNames[i] << endl;
+
+            H5std_string groupName( groupNames[i] );
+
+            Group* group = new Group(file->openGroup(groupName));
+
+            DataSet* dataset;
+            try {  // to determine if the dataset exists in the group
+                 dataset = new DataSet( group->openDataSet( "embedding" ));
+            }
+            catch( GroupIException not_found_error ) {
+                cout << "\t ERROR: Dataset is not found." << endl;
+//                return 0;
+            }
+            
+            // Read Embed
+            double  embedding[512]; /* output buffer */
+            dataset->read(embedding, PredType::NATIVE_DOUBLE);
+
+            // Loop through 10 example values
+            for( unsigned int a = 0; a < 10; a = a + 1 )
+            {
+                cout << embedding[a] << ", ";
+            }
+          
+        }
+
+        /*
+         * Close the group and file.
+         */
+        delete file;
+    }  // end of try block
+
+    // catch failure caused by the H5File operations
+    catch( FileIException error )
+    {
+        error.printErrorStack();
+//        return -1;
+    }
+
+    // catch failure caused by the DataSet operations
+    catch( DataSetIException error )
+    {
+        error.printErrorStack();
+//        return -1;
+    }
+
+    // catch failure caused by the DataSpace operations
+    catch( DataSpaceIException error )
+    {
+        error.printErrorStack();
+//        return -1;
+    }
+
+    // catch failure caused by the Attribute operations
+    catch( AttributeIException error )
+    {
+        error.printErrorStack();
+//        return -1;
+    }
+
+/////////////////////////////////////////////////////  HDF5 END  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     
     
     this->detector = MTCNNDetector(pConfig, rConfig, oConfig);
@@ -139,3 +207,34 @@ cv::Mat ImageProcessMTCNN::filterMTCNN(cv::Mat src)
     
     return resultImg;
 }
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////  HDF5 START  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+ * Operator function.
+ */
+herr_t
+file_info(hid_t loc_id, const char *name, const H5L_info2_t *linfo, void *opdata)
+{
+    hid_t group;
+
+    /*
+     * Open the group using its name.
+     */
+    group = H5Gopen2(loc_id, name, H5P_DEFAULT);
+
+    groupNames.push_back(name);
+
+    /*
+     * Display group name.
+     */
+    cout << "Name : " << name << endl;
+
+    H5Gclose(group);
+    return 0;
+}
+/////////////////////////////////////////////////////  HDF5 END  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
